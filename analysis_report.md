@@ -1,49 +1,75 @@
 # Comprehensive Analysis Report: Vendor Performance & Data Ingestion
 
 ## 1. Executive Summary
-This report synthesizes the data ingestion process, exploratory data analysis (EDA), and vendor performance insights derived from the provided Jupyter Notebooks (`data_joining.ipynb`, `Explorartory Data Analysis.ipynb`, and `Vendor Performace Analysis.ipynb`). The primary goal of the analysis was to evaluate vendor performance based on key metrics such as total sales, profit margins, delivery lead times, and amount of capital locked in unsold inventory.
+This report synthesizes the data ingestion process, exploratory data analysis (EDA), and vendor performance insights derived from the provided analytics workflows. The primary goal of the analysis was to evaluate vendor performance based on key metrics such as total sales, profit margins, delivery lead times, and capital locked in unsold inventory.
 
 ## 2. Data Ingestion & Database Construction
-The data ingestion process, outlined in `data_joining.ipynb`, was conducted systematically to handle the large-scale datasets efficiently:
-- **Data Loading:** Raw datasets (CSV format) encompassing `begin_inventory`, `end_inventory`, `purchase_prices`, `purchases`, `sales`, and `vendor_invoice` were incrementally processed in chunks (chunksize of 50,000) using Pandas.
-- **Database Creation:** A localized SQLite database (`inventory.db`) was constructed. Incremental chunk loading allowed for the efficient insertion of millions of records into the database without overwhelming system memory.
-- **Data Integration:** Once the database was populated, `sqlite3` and Pandas were used seamlessly to run SQL queries retrieving data tables directly for Exploratory Data Analysis and Feature Engineering.
+To handle the large-scale datasets efficiently, a structured ingestion and optimization pipeline was implemented:
+- **Data Tables:** Core data resides across multiple tables, including the `purchases` table (actual purchase transactions), `purchase_prices` (product-wise tracking), `vendor_invoice` (aggregated quantities and freight costs), and `sales` (transaction details and revenue earned).
+- **Summary Optimization:** Because the required analysis spans multiple large tables, a consolidated summary table (`vendor_sales_summary`) was created containing purchase transactions, sales data, freight costs, and exact pricing. 
+- **Performance Benefits:** Pre-aggregating heavy joins across massive sales and purchase tables avoids repeated expensive computations. This optimization ensures that dashboards and BI reporting tools can fetch data quickly and efficiently.
 
-## 3. Exploratory Data Analysis & Feature Engineering
-Data retrieved from SQLite underwent aggregation and transformation to calculate key vendor performance indicators (KPIs) in `Vendor Performace Analysis.ipynb`:
-- **Sales & Purchases Aggregation:** Total Sales Dollars, Sales Quantity, Purchase Dollars, and Purchase Quantity were grouped per vendor.
-- **Profit Margin Calculation:** Computed as: 
-  `((Total Sales - Total Purchases) / Total Sales) * 100`.
-- **Lead Time (Receiving Time):** Calculated as the difference between `PODate` and `ReceivingDate` to define the average delivery processing time per vendor.
-- **Inventory & Locked Capital:** Evaluated the total amount of unsold merchandise (`onHand` * `Price`) tied to each vendor.
+## 3. Exploratory Data Analysis (EDA)
+In this phase of EDA, we analyzed the resultant summary table to gain insights into the distribution of each column, ultimately identifying anomalies and ensuring data quality before further hypothesis testing.
 
-## 4. Vendor Performance Insights
-Based on the transformed metrics, the following insights were uncovered:
+![Distribution Histograms](VPA_resources/Screenshot%202026-03-06%20224048.png)
+![Boxplots](VPA_resources/Screenshot%202026-03-06%20224107.png)
+![KDE Distributions](VPA_resources/Screenshot%202026-03-06%20224133.png)
 
-### 4.1. Top vendors by Sales and Volume
-- Analysis shows a high dependency on a small number of top vendors for overall procurement and sales revenue.
-- Top-earning vendors like **DIAGEO NORTH AMERICA INC**, **JIM BEAM BRANDS COMPANY**, and **PERNOD RICARD USA** heavily govern the total market share, making them critical for overall company revenue.
+### 3.1. Summary Statistics Insights & Outliers
+- **Negative Gross Profit & Margins:** Negative values indicate potential losses, highlighting products or transactions selling below cost or at heavy discounts. Furthermore, Total Sales instances equal to 0 point to obsolete stock that was purchased but strictly remained unsold.
+- **High Deviations:** Large variations were observed in Purchase/Actual Prices (distinguishing premium vs. standard products), Freight Costs (suggesting logistics inefficiencies or large bulk shipments), and Stock Turnover (fast-moving vs. indefinitely stagnated inventory).
 
-### 4.2. Delivery Lead Times
-- Average receiving times vary significantly across vendors. Consistent monitoring of lead times is critical to ensuring smooth supply chain operations and minimizing out-of-stock scenarios.
+## 4. Vendor Performance Analysis
 
-### 4.3. Locked Capital in Unsold Inventory
-- Vendors contributing heavily to unsold inventory value were identified (e.g., **DIAGEO NORTH AMERICA INC** with highly locked capital, corresponding to roughly $480.93K). 
-- Managing the procurement volume from vendors with extremely high locked capital will be a necessary strategic move to free up resources.
+### 4.1. Sales & Vendor Output Performance
+**Q: Which vendors and brands demonstrate the highest sales performance?**
+Analysis reveals top-heavy sales performance. **Diageo North America Inc** overwhelmingly leads vendors with $67.99M in sales, followed by Martignetti Companies at $39.33M. Among the diverse brands, **Jack Daniels No 7 Black** ($7.96M) and Tito's Handmade Vodka heavily drive revenue.
+
+![Count Plots - Vendor and Description](VPA_resources/Screenshot%202026-03-06%20224147.png)
+![Top 10 Vendors and Brands by Sales](VPA_resources/Screenshot%202026-03-06%20224315.png)
+
+### 4.2. Vendor Purchase Contributions
+**Q: Which vendors contribute the most to total purchase dollars, and how much is procurement dependent on these top vendors?**
+Procurement is vastly dependent on the top 10 vendors, which collectively make up **65.69%** of the total purchase contribution.
+
+![Pareto Chart - Vendor Contribution](VPA_resources/Screenshot%202026-03-06%20224335.png)
+![Donut Chart - Top 10 Vendor Purchase Contribution](VPA_resources/Screenshot%202026-03-06%20224349.png)
+
+### 4.3. The Massive Impact of Bulk Purchasing
+**Q: Does purchasing in bulk reduce the unit price, and what is the optimal purchase volume?**
+Yes. Vendors buying in bulk (categorized exactly as "Large" Order Size) secure the lowest average unit price of roughly $10.78 per unit. This translates to an expansive **~72% reduction in unit cost** compared to Small orders. These bulk pricing strategies successfully incentivize larger volume purchases, elevating overall margin potential.
+
+![Impact of Bulk Purchasing](VPA_resources/Screenshot%202026-03-06%20224404.png)
+
+### 4.4. Locked Capital
+**Q: How much capital is locked in unsold inventory per vendor?**
+An enormous total of **$2.71M** remains locked in unsold inventory. Carefully monitoring and scaling down procurement volume from highly-locked top-volume vendors is a critical necessity to free dynamic working capital.
+
+### 4.5. Correlation Insights & Pricing Adjustments
+A robust correlation (0.999) between Total Purchase Quantity and Total Sales Quantity proves generally successful and efficient inventory turnover. Conversely, a negative correlation exists between Profit Margin and Total Sales Price (-0.179), heavily implying harsh competitive pricing pressures at scale.
+
+![Correlation Heatmap](VPA_resources/Screenshot%202026-03-06%20224220.png)
+
+To dynamically optimize operations, we isolated specific brands exhibiting lower sales performance but generating high potential profit margins. These target brands inherently require robust promotional scaling or immediate pricing adjustments.
+
+![Brands for Promotional or Pricing Adjustments](VPA_resources/Screenshot%202026-03-06%20224240.png)
 
 ## 5. Statistical Inference: Profit Margins
-Hypothesis testing and confidence intervals were calculated to understand the relationship between vendor sales volume and profitability.
 
-### 5.1. Confidence Intervals
-- **Top Vendors 95% CI:** Mean 31.17% (Margin of 30.74% to 31.61%)
-- **Low Vendors 95% CI:** Mean 41.55% (Margin of 40.48% to 42.62%)
-- *Insight:* Low-performing vendors based on sales tend to maintain significantly higher profit margins. This may be due to premium pricing, niche products, or lower operational overheads.
+**Q: Is there a significant difference in profit margins between top-performing and low-performing vendors?**
 
-### 5.2. Two-Sample T-Test
-- **Null Hypothesis (H₀):** No significant difference in mean profit margins between top-performing and low-performing vendors.
-- **Alternative Hypothesis (H₁):** Means are significantly different.
-- **Results:** T-Statistic of -17.6440 and P-Value of 0.0000.
-- **Conclusion:** We successfully reject the Null Hypothesis. There is a definitive, statistically significant difference in profit margin structures between high-sales and low-sales vendors. High-volume vendors may require price adjustments or cost-optimization strategies, whereas low-volume (high-margin) vendors might benefit from more aggressive marketing to scale operations.
+### 5.1 Confidence Intervals
+- **Top-Performing Vendors (95% CI):** 30.74% to 31.61%
+- **Low-Performing Vendors (95% CI):** 40.48% to 42.62%
+Notably, low-performing vendors based strictly on sales consistently maintain significantly wider and higher profit margins. 
+
+### 5.2 Hypothesis Testing & Real-World Recommendations
+- **Results:** Testing revealed a T-Statistic of -17.6440 and a P-Value of 0.0000. Under this testing, the null hypothesis is cleanly rejected; the variance is statistically significant.
+- **For High-Performing Vendors:** Consider exploring precise fractional price adjustments, robust cost/freight optimizations, and bundling strategies to steadily increase currently thin top-tier margins.
+- **For Low-Performing Vendors:** Broad, sustained high margins alongside low volume suggests an immediate overriding need for improved targeted marketing, competitive volume pricing, or broader distribution logistics to aggressively scale up operations.
+
+![Confidence Interval Comparison](VPA_resources/Screenshot%202026-03-06%20224433.png)
 
 ## 6. Conclusion
-The comprehensive analysis of the existing datasets reveals a well-oiled ingestion pipeline and provides actionable intelligence on vendor health. Stakeholders can use these statistical inferences to adjust purchasing strategies—balancing the reliability and high sales of top vendors against the superior profit margins of lower-volume vendors.
+The comprehensive analysis of the existing datasets reveals a powerful, heavily optimized data ingestion pipeline and outlines actionable, statistically baked intelligence regarding vendor health and performance. Stakeholders have empirical backing to adjust purchasing procedures—tightly balancing the scale and reliability of top vendors strictly against cultivating the superior profit margins of lower-volume vendors.
