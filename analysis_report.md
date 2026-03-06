@@ -12,9 +12,9 @@ To handle the large-scale datasets efficiently, a structured ingestion and optim
 ## 3. Exploratory Data Analysis (EDA)
 In this phase of EDA, we analyzed the resultant summary table to gain insights into the distribution of each column, ultimately identifying anomalies and ensuring data quality before further hypothesis testing.
 
-![Distribution Histograms](VPA_resources/Screenshot%202026-03-06%20224048.png)
-![Boxplots](VPA_resources/Screenshot%202026-03-06%20224107.png)
-![KDE Distributions](VPA_resources/Screenshot%202026-03-06%20224133.png)
+![Distribution Histograms](images/Screenshot%202026-03-06%20224048.png)
+![Boxplots](images/Screenshot%202026-03-06%20224107.png)
+![KDE Distributions](images/Screenshot%202026-03-06%20224133.png)
 
 ### 3.1. Summary Statistics Insights & Outliers
 - **Negative Gross Profit & Margins:** Negative values indicate potential losses, highlighting products or transactions selling below cost or at heavy discounts. Furthermore, Total Sales instances equal to 0 point to obsolete stock that was purchased but strictly remained unsold.
@@ -26,21 +26,21 @@ In this phase of EDA, we analyzed the resultant summary table to gain insights i
 **Q: Which vendors and brands demonstrate the highest sales performance?**
 Analysis reveals top-heavy sales performance. **Diageo North America Inc** overwhelmingly leads vendors with $67.99M in sales, followed by Martignetti Companies at $39.33M. Among the diverse brands, **Jack Daniels No 7 Black** ($7.96M) and Tito's Handmade Vodka heavily drive revenue.
 
-![Count Plots - Vendor and Description](VPA_resources/Screenshot%202026-03-06%20224147.png)
-![Top 10 Vendors and Brands by Sales](VPA_resources/Screenshot%202026-03-06%20224315.png)
+![Count Plots - Vendor and Description](images/Screenshot%202026-03-06%20224147.png)
+![Top 10 Vendors and Brands by Sales](images/Screenshot%202026-03-06%20224315.png)
 
 ### 4.2. Vendor Purchase Contributions
 **Q: Which vendors contribute the most to total purchase dollars, and how much is procurement dependent on these top vendors?**
 Procurement is vastly dependent on the top 10 vendors, which collectively make up **65.69%** of the total purchase contribution.
 
-![Pareto Chart - Vendor Contribution](VPA_resources/Screenshot%202026-03-06%20224335.png)
-![Donut Chart - Top 10 Vendor Purchase Contribution](VPA_resources/Screenshot%202026-03-06%20224349.png)
+![Pareto Chart - Vendor Contribution](images/Screenshot%202026-03-06%20224335.png)
+![Donut Chart - Top 10 Vendor Purchase Contribution](images/Screenshot%202026-03-06%20224349.png)
 
 ### 4.3. The Massive Impact of Bulk Purchasing
 **Q: Does purchasing in bulk reduce the unit price, and what is the optimal purchase volume?**
 Yes. Vendors buying in bulk (categorized exactly as "Large" Order Size) secure the lowest average unit price of roughly $10.78 per unit. This translates to an expansive **~72% reduction in unit cost** compared to Small orders. These bulk pricing strategies successfully incentivize larger volume purchases, elevating overall margin potential.
 
-![Impact of Bulk Purchasing](VPA_resources/Screenshot%202026-03-06%20224404.png)
+![Impact of Bulk Purchasing](images/Screenshot%202026-03-06%20224404.png)
 
 ### 4.4. Locked Capital
 **Q: How much capital is locked in unsold inventory per vendor?**
@@ -49,11 +49,11 @@ An enormous total of **$2.71M** remains locked in unsold inventory. Carefully mo
 ### 4.5. Correlation Insights & Pricing Adjustments
 A robust correlation (0.999) between Total Purchase Quantity and Total Sales Quantity proves generally successful and efficient inventory turnover. Conversely, a negative correlation exists between Profit Margin and Total Sales Price (-0.179), heavily implying harsh competitive pricing pressures at scale.
 
-![Correlation Heatmap](VPA_resources/Screenshot%202026-03-06%20224220.png)
+![Correlation Heatmap](images/Screenshot%202026-03-06%20224220.png)
 
 To dynamically optimize operations, we isolated specific brands exhibiting lower sales performance but generating high potential profit margins. These target brands inherently require robust promotional scaling or immediate pricing adjustments.
 
-![Brands for Promotional or Pricing Adjustments](VPA_resources/Screenshot%202026-03-06%20224240.png)
+![Brands for Promotional or Pricing Adjustments](images/Screenshot%202026-03-06%20224240.png)
 
 ## 5. Statistical Inference: Profit Margins
 
@@ -69,7 +69,7 @@ Notably, low-performing vendors based strictly on sales consistently maintain si
 - **For High-Performing Vendors:** Consider exploring precise fractional price adjustments, robust cost/freight optimizations, and bundling strategies to steadily increase currently thin top-tier margins.
 - **For Low-Performing Vendors:** Broad, sustained high margins alongside low volume suggests an immediate overriding need for improved targeted marketing, competitive volume pricing, or broader distribution logistics to aggressively scale up operations.
 
-![Confidence Interval Comparison](VPA_resources/Screenshot%202026-03-06%20224433.png)
+![Confidence Interval Comparison](images/Screenshot%202026-03-06%20224433.png)
 
 ## 6. Conclusion
 The comprehensive analysis of the existing datasets reveals a powerful, heavily optimized data ingestion pipeline and outlines actionable, statistically baked intelligence regarding vendor health and performance. Stakeholders have empirical backing to adjust purchasing procedures—tightly balancing the scale and reliability of top vendors strictly against cultivating the superior profit margins of lower-volume vendors.
